@@ -9,6 +9,10 @@ import org.apache.log4j.Logger;
 import com.pramati.webscraper.client.WebScrapper;
 import com.pramati.webscraper.client.impl.Response;
 
+/**
+ * Main method for webScrapper to start.
+ * 
+**/
 public final class WebScrapperMain {
 	 
 	private static final Logger LOGGER = Logger.getLogger(WebScrapperMain.class);
@@ -19,13 +23,14 @@ public final class WebScrapperMain {
 		
 	}
 
-
 	public static void main(String[] args) throws Exception { 
 		
 		final WebScrapper webScrapper= new WebScrapper();
 		if(LOGGER.isDebugEnabled()){
 		LOGGER.debug("Web Scrapper Starting....");
 		}
+		
+		//Parent URL from which the system is going to get the Data.
 		
 		String urlOfMainPage = "http://www.mail-archive.com/cassandra-user@incubator.apache.org/maillist.html";
 		

@@ -4,6 +4,7 @@
 package com.pramati.webscraper.client;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,23 +28,24 @@ import com.pramati.webscraper.utils.HtmlLink;
 
 /**
  * @author sandeep-t
- * 
+ * Util Class for doing operations like url reading, url extraction and data extraction.
+ *   
  */
+
 public class WebScrapper {
 
 	private static final Logger LOGGER = Logger.getLogger(WebScrapper.class);
 	private static final  int BUFFERSIZE = 1024;
+	private static final String FILESEPARATOR=File.separator;
 
-	/*
-	 * public static void main(String[] argv) { WebScrapper scrapper = new
-	 * WebScrapper(); String
-	 * urlOfPage="http://www.tutorialspoint.com/java/java_regular_expressions.htm"
-	 * ; scrapper.getWebLinksList(urlOfPage);
-	 * 
-	 * }
-	 */
 	
-
+	
+/**
+ * This method will take html data in form of String and will 
+ * return a list of weblinks embedded in thathtml data 
+ * @param htmlData
+ * @return list of webaddress
+ */
 	public List<String> getWebLinksListFromHtml(String htmlData) {
 		final List<String> webLinksList = new ArrayList<String>();
 		htmlData.replaceAll("\\s+", " ");
@@ -58,6 +60,16 @@ public class WebScrapper {
 		return webLinksList;
 	}
 
+	/**
+	 * This function serves the purpose of hitting the the given 
+	 * URL and get the response out of it.
+	 * If in case any exception occurs the exception
+	 * will be thrown up and the system is going to halt.
+	 * 
+	 * @param urlOfMainPage
+	 * @return Future as the response
+	 * @throws Exception
+	 */
 	public Future<Response> hitMainPage(String urlOfMainPage) throws Exception {
 		Request task;
 		final String spec = urlOfMainPage;
@@ -81,6 +93,16 @@ public class WebScrapper {
 		return response;
 	}
 
+	/**
+	 * 
+	 * This fuction will be used to get the html response after parsing the
+	 * data from future passed to the function. 
+	 * @param responseList
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws IOException
+	 */
 	public String readResponseForHtmlData(final Future<Response> responseList)
 			throws InterruptedException, ExecutionException, IOException {
 		final Response resp = responseList.get();
@@ -97,18 +119,23 @@ public class WebScrapper {
 		} catch (IOException e) {
 			LOGGER.error("Exception occured while reading data from Response",
 					e);
-			
 			throw new IOException(
 					"Exception occured while reading data from Response", e);
 			
 		} finally {
 			responseBuffer.close();
 		}
-		//System.out.println("Response Code " + htmlData.toString());
-
+	
 		return htmlData.toString();
 	}
 
+	/**
+	 * This function will take the two arguments as the input and will 
+	 * return the list of Future for all the links in the urlLists.  
+	 * @param urlLists - list of URLs extracted from htmlData.  
+	 * @param webLink-the weblink that was hit initially.
+	 * @return
+	 */
 	public List<Future<Response>> getResonseListForWebLinks(
 			final List<String> urlLists,String webLink) {
 		final ExecutorService childExecutor = Executors.newFixedThreadPool(100);
@@ -120,7 +147,7 @@ public class WebScrapper {
 			//System.out.println("Link " + "" + hyperLink);
 			stbr= new StringBuilder();
 			try {
-				stbr.append(webLink).append("/").append(hyperLink);
+				stbr.append(webLink).append(FILESEPARATOR).append(hyperLink);
 				//System.out.println("STBR "+stbr.toString());
 				//System.out.println();
 				url = new URL(stbr.toString());
@@ -142,7 +169,17 @@ public class WebScrapper {
 		return childFutureList;
 	}
 
-	public void writeStreamToFile(InputStream in, String outFileStr) {
+	
+
+/**
+ * This method will be used for writing the extracted data in form of
+ * input stream into the files
+ * 
+ * @param in
+ * @param outFileStr
+ * @throws IOException 
+ */
+	public void writeStreamToFile(InputStream in, String outFileStr) throws IOException {
 		
 		try {
 			final FileOutputStream out = new FileOutputStream(outFileStr);
@@ -153,10 +190,10 @@ public class WebScrapper {
 			}
 		} catch (FileNotFoundException e) {
 			LOGGER.error("Exception occurecd while writing file " + outFileStr);
-			// e.printStackTrace();
+			throw new FileNotFoundException("Exception occurecd while writing file " + outFileStr);
 		} catch (IOException e) {
-			LOGGER.error("Exception occurecd while writing file " + outFileStr);
-			// e.printStackTrace();
+			LOGGER.error("IOException occurecd while writing file " + outFileStr);
+			throw new IOException("IOException occurecd while writing file " + outFileStr);
 		}
 
 	}

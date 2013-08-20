@@ -9,6 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Class will serve the purpose of hyperlink validation and varification.
+ * 
+ * 
  * @author sandeep-t
  *
  */
@@ -17,22 +20,23 @@ public class HTMLLinkExtractor {
 	private Pattern patternTag, patternLink;
 	private Matcher matcherTag, matcherLink;
  
-	private static final String HTML_A_TAG_PATTERN = "(?i)<a([^>]+)>(.+?)</a>";
-	private static final String HTML_A_HREF_TAG_PATTERN = 
+	private static final String HTML_TAG_PATTERN = "(?i)<a([^>]+)>(.+?)</a>";
+	private static final String HTML_HREF_TAG_PATTERN = 
 		"\\s*(?i)href\\s*=\\s*(\"([^\"]*\")|'[^']*'|([^'\">\\s]+))";
  
  
 	public HTMLLinkExtractor() {
-		patternTag = Pattern.compile(HTML_A_TAG_PATTERN);
-		patternLink = Pattern.compile(HTML_A_HREF_TAG_PATTERN);
+		patternTag = Pattern.compile(HTML_TAG_PATTERN);
+		patternLink = Pattern.compile(HTML_HREF_TAG_PATTERN);
 	}
  
 	/**
-	 * Validate html with regular expression
 	 * 
+	 * Validate html with regular expression
+	 * and return the list of htmllinks extracted from html data passed.
 	 * @param html
 	 *            html content for validation
-	 * @return Vector links and link text
+	 * @return List links and link text
 	 */
 	public List<HtmlLink> grabHTMLLinks(final String html) {
  

@@ -22,8 +22,8 @@
 			<version>1.6.3</version>
 		</dependency>
 	</dependencies>
-	<build></build>
-	<repositories>
+<!-- 	<build></build> -->
+<!-- 	<repositories>
 		<repository>
 			<id>central</id>
 			<name>Maven Repository Switchboard</name>
@@ -33,5 +33,5 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-	</repositories>
+	</repositories> -->
 </project>

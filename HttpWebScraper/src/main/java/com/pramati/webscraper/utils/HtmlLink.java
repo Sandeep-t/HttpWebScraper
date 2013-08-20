@@ -4,6 +4,8 @@
 package com.pramati.webscraper.utils;
 
 /**
+ * Every html link in HTML data will contain 2 parts actual link and 
+ * the textpart(displayed in the webpage).This Class will serve as the object of HTML.  
  * @author sandeep-t
  *
  */

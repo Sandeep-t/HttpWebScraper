@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
-
+/**
+ * Class implementing Callable and to return the response.
+ * @author sandeep-t
+ *
+ */
 
 public class Request implements Callable<Response> {
 	
