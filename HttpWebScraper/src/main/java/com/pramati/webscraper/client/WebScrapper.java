@@ -4,7 +4,6 @@
 package com.pramati.webscraper.client;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,9 +36,10 @@ public class WebScrapper {
 
 	private static final Logger LOGGER = Logger.getLogger(WebScrapper.class);
 	private static final  int BUFFERSIZE = 1024;
-	private static final String FILESEPARATOR=File.separator;
-
-	
+	private static final String FILESEPARATOR=System.getProperty("file.separator");
+	public static ExecutorService executor = Executors.newFixedThreadPool(20);
+	//public static List<Future<Response>> childFutureList = Collections.synchronizedList(new ArrayList<Future<Response>>());
+	public static Vector<Future<Response>> childFutureList = new Vector<Future<Response>>();
 	
 /**
  * This method will take html data in form of String and will 
@@ -46,18 +47,31 @@ public class WebScrapper {
  * @param htmlData
  * @return list of webaddress
  */
-	public List<String> getWebLinksListFromHtml(String htmlData) {
-		final List<String> webLinksList = new ArrayList<String>();
+	public void getWebLinksListFromHtml(String htmlData,String webLink) {
+		
 		htmlData.replaceAll("\\s+", " ");
 		final HTMLLinkExtractor extractor = new HTMLLinkExtractor();
 		final List<HtmlLink> links = extractor.grabHTMLLinks(htmlData);
-		for (int i = 0; i < links.size(); i++) {
-			final HtmlLink htmlLinks = links.get(i);
-			webLinksList.add(htmlLinks.getLink());
-			//System.out.println("Links " + htmlLinks.getLink());
-
+		StringBuilder stbr;
+		URL url;
+		Request task;
+		for (HtmlLink link:links) {
+			stbr = new StringBuilder();
+			try {
+				stbr.append(webLink).append("/")
+						.append(link.getLink());
+				url = new URL(stbr.toString());
+				task = new Request(url);
+				final Future<Response> response = executor.submit(task);
+				childFutureList.add(response);
+			} catch (MalformedURLException e1) {
+				LOGGER.error(
+						"MalformedURLException occured while parsing the URL "
+								+ stbr.toString(), e1);
+				
+			}			
+		
 		}
-		return webLinksList;
 	}
 
 	/**
@@ -85,11 +99,9 @@ public class WebScrapper {
 							+ spec, e1);
 		}
 		//Future<Response> response = null;
-		final ExecutorService executor = Executors.newFixedThreadPool(2);
-		final List<Future<Response>> futureList = new ArrayList<Future<Response>>();
+		
 		final Future<Response> response  = executor.submit(task);
-		futureList.add(response);
-		executor.shutdown();
+		
 		return response;
 	}
 
@@ -136,23 +148,22 @@ public class WebScrapper {
 	 * @param webLink-the weblink that was hit initially.
 	 * @return
 	 */
-	public List<Future<Response>> getResonseListForWebLinks(
-			final List<String> urlLists,String webLink) {
-		final ExecutorService childExecutor = Executors.newFixedThreadPool(100);
+	public List<Future<Response>> getResonseListForWebLinks(final List<String> urlLists,String webLink) {
 		final List<Future<Response>> childFutureList = new ArrayList<Future<Response>>();
 		StringBuilder stbr;
 		URL url;
 		Request task;
 		for (final String hyperLink : urlLists) {
-			//System.out.println("Link " + "" + hyperLink);
+			
 			stbr= new StringBuilder();
 			try {
+				
 				stbr.append(webLink).append(FILESEPARATOR).append(hyperLink);
-				//System.out.println("STBR "+stbr.toString());
+			
 				//System.out.println();
 				url = new URL(stbr.toString());
 				task = new Request(url);
-				final Future<Response> response = childExecutor.submit(task);
+				final Future<Response> response = executor.submit(task);
 				childFutureList.add(response);
 			} catch (MalformedURLException e1) {
 				LOGGER.error(
@@ -163,9 +174,8 @@ public class WebScrapper {
 				// e1);
 			} 
 			
-			
 		}
-		childExecutor.shutdown();
+		
 		return childFutureList;
 	}
 

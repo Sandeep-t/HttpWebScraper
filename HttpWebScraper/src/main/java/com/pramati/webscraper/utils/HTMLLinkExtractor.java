@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
+import com.pramati.webscraper.client.WebScrapper;
+
 /**
  * Class will serve the purpose of hyperlink validation and varification.
  * 
@@ -19,8 +23,8 @@ public class HTMLLinkExtractor {
 
 	private Pattern patternTag, patternLink;
 	private Matcher matcherTag, matcherLink;
- 
-	private static final String HTML_TAG_PATTERN = "(?i)<a([^>]+)>(.+?)</a>";
+	private static final Logger LOGGER = Logger.getLogger(HTMLLinkExtractor.class);
+	private static final String HTML_TAG_PATTERN = "(?i)<a([^>]+)>(.*?)</a>";
 	private static final String HTML_HREF_TAG_PATTERN = 
 		"\\s*(?i)href\\s*=\\s*(\"([^\"]*\")|'[^']*'|([^'\">\\s]+))";
  
@@ -47,13 +51,18 @@ public class HTMLLinkExtractor {
 		while (matcherTag.find()) {
  
 			String href = matcherTag.group(1); // href
+			LOGGER.info("Group 1 "+ href);
+			
 			String linkText = matcherTag.group(2); // link text
- 
+			LOGGER.info("Group2 "+ linkText);
+			
 			matcherLink = patternLink.matcher(href);
  
 			while (matcherLink.find()) {
  
 				String link = matcherLink.group(1); // link
+				LOGGER.info("link  "+ link);
+				
 				HtmlLink obj = new HtmlLink();
 				obj.setLink(link);
 				obj.setLinkText(linkText);

@@ -1,5 +1,7 @@
 package com.pramati.webscraper.main;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -8,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.pramati.webscraper.client.WebScrapper;
 import com.pramati.webscraper.client.impl.Response;
+import com.pramati.webscraper.utils.ResponsePooler;
 
 /**
  * Main method for webScrapper to start.
@@ -31,24 +34,28 @@ public final class WebScrapperMain {
 		}
 		
 		//Parent URL from which the system is going to get the Data.
-		
+		ResponsePooler pooler= new ResponsePooler();
+		WebScrapper.executor.execute(pooler);
 		String urlOfMainPage = "http://www.mail-archive.com/cassandra-user@incubator.apache.org/maillist.html";
 		
 		final Future<Response> htmlResponse=webScrapper.hitMainPage(urlOfMainPage);
 		
 		final String htmlData=webScrapper.readResponseForHtmlData(htmlResponse);
 		
-		final List<String> webLinks=webScrapper.getWebLinksListFromHtml(htmlData);
 		urlOfMainPage=urlOfMainPage.substring(0, urlOfMainPage.lastIndexOf('/')); 
-		//System.out.println("UTL  "+urlOfMainPage);
-		final List<Future<Response>> responseList=webScrapper.getResonseListForWebLinks(webLinks,urlOfMainPage);
+		
+		webScrapper.getWebLinksListFromHtml(htmlData,urlOfMainPage);
+		
+		
+		
+	/*	final List<Future<Response>> responseList=webScrapper.getResonseListForWebLinks(webLinks,urlOfMainPage);
 		 int loopCounter=0;
 		 for(final Future<Response> resp:responseList){
 			 loopCounter++;
 			final Response response = resp.get();
 			final InputStream body = response.getBody();
 			webScrapper.writeStreamToFile(body, FILEDUMPDIR+loopCounter+".html");
-		 }
+		 }*/
 	
 	}
 	
