@@ -13,16 +13,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
 import com.pramati.webscraper.client.impl.Request;
 import com.pramati.webscraper.client.impl.Response;
+import com.pramati.webscraper.executors.ThreadExecutor;
 import com.pramati.webscraper.utils.HTMLLinkExtractor;
 import com.pramati.webscraper.utils.HtmlLink;
 
@@ -37,9 +37,10 @@ public class WebScrapper {
 	private static final Logger LOGGER = Logger.getLogger(WebScrapper.class);
 	private static final  int BUFFERSIZE = 1024;
 	private static final String FILESEPARATOR=System.getProperty("file.separator");
-	public static ExecutorService executor = Executors.newFixedThreadPool(20);
-	//public static List<Future<Response>> childFutureList = Collections.synchronizedList(new ArrayList<Future<Response>>());
-	public static Vector<Future<Response>> childFutureList = new Vector<Future<Response>>();
+	//private static ExecutorService executor = Executors.newFixedThreadPool(20);
+	//private static List<Future<Response>> childFutureList = Collections.synchronizedList(new ArrayList<Future<Response>>());
+	//private static Vector<Future<Response>> childFutureList = new Vector<Future<Response>>();
+	public static BlockingQueue<Future<Response>> childFutureList = new LinkedBlockingQueue<Future<Response>>();
 	
 /**
  * This method will take html data in form of String and will 
@@ -62,7 +63,7 @@ public class WebScrapper {
 						.append(link.getLink());
 				url = new URL(stbr.toString());
 				task = new Request(url);
-				final Future<Response> response = executor.submit(task);
+				final Future<Response> response =ThreadExecutor.getInstance().submitTask(task);
 				childFutureList.add(response);
 			} catch (MalformedURLException e1) {
 				LOGGER.error(
@@ -84,25 +85,18 @@ public class WebScrapper {
 	 * @return Future as the response
 	 * @throws Exception
 	 */
-	public Future<Response> hitMainPage(String urlOfMainPage) throws Exception {
-		Request task;
-		final String spec = urlOfMainPage;
+	public Future<Response> getMainPageResponse(final String urlString) throws Exception {
 		try {
-			final URL url = new URL(spec);
-			task = new Request(url);
-
+			final URL url = new URL(urlString);
+			Request task = new Request(url);
+			return ThreadExecutor.getInstance().submitTask(task);
 		} catch (MalformedURLException e1) {
 			LOGGER.error("MalformedURLException occured while parsing the URL "
-					+ spec, e1);
+					+ urlString, e1);
 			throw new Exception(
 					"MalformedURLException occured while parsing the URL "
-							+ spec, e1);
+							+ urlString, e1);
 		}
-		//Future<Response> response = null;
-		
-		final Future<Response> response  = executor.submit(task);
-		
-		return response;
 	}
 
 	/**
@@ -122,11 +116,11 @@ public class WebScrapper {
 		final BufferedReader responseBuffer = new BufferedReader(new InputStreamReader(
 				body));
 		String output;
-		StringBuilder htmlData = new StringBuilder();
+		StringBuilder fileContent = new StringBuilder();
 		//System.out.println("Output from Server .... \n");
 		try {
 			while ((output = responseBuffer.readLine()) != null) {
-				htmlData.append(output);
+				fileContent.append(output);
 			}
 		} catch (IOException e) {
 			LOGGER.error("Exception occured while reading data from Response",
@@ -138,7 +132,7 @@ public class WebScrapper {
 			responseBuffer.close();
 		}
 	
-		return htmlData.toString();
+		return fileContent.toString();
 	}
 
 	/**
@@ -163,7 +157,7 @@ public class WebScrapper {
 				//System.out.println();
 				url = new URL(stbr.toString());
 				task = new Request(url);
-				final Future<Response> response = executor.submit(task);
+				final Future<Response> response = ThreadExecutor.getInstance().submitTask(task);
 				childFutureList.add(response);
 			} catch (MalformedURLException e1) {
 				LOGGER.error(
@@ -207,4 +201,6 @@ public class WebScrapper {
 		}
 
 	}
+	
+	
 }

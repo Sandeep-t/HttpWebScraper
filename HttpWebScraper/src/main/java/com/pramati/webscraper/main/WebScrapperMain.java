@@ -1,15 +1,12 @@
 package com.pramati.webscraper.main;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.util.List;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
 import com.pramati.webscraper.client.WebScrapper;
 import com.pramati.webscraper.client.impl.Response;
+import com.pramati.webscraper.executors.ThreadExecutor;
 import com.pramati.webscraper.utils.ResponsePooler;
 
 /**
@@ -19,7 +16,7 @@ import com.pramati.webscraper.utils.ResponsePooler;
 public final class WebScrapperMain {
 	 
 	private static final Logger LOGGER = Logger.getLogger(WebScrapperMain.class);
-	private static final String FILEDUMPDIR="D:/Test/";
+	
 	
 	private WebScrapperMain() {
 		super();
@@ -32,13 +29,13 @@ public final class WebScrapperMain {
 		if(LOGGER.isDebugEnabled()){
 		LOGGER.debug("Web Scrapper Starting....");
 		}
-		
+		String urlOfMainPage = "http://www.mail-archive.com/cassandra-user@incubator.apache.org/maillist.html";
 		//Parent URL from which the system is going to get the Data.
 		ResponsePooler pooler= new ResponsePooler();
-		WebScrapper.executor.execute(pooler);
-		String urlOfMainPage = "http://www.mail-archive.com/cassandra-user@incubator.apache.org/maillist.html";
 		
-		final Future<Response> htmlResponse=webScrapper.hitMainPage(urlOfMainPage);
+		ThreadExecutor.getInstance().executeTask(pooler);
+		
+		final Future<Response> htmlResponse=webScrapper.getMainPageResponse(urlOfMainPage);
 		
 		final String htmlData=webScrapper.readResponseForHtmlData(htmlResponse);
 		

@@ -16,13 +16,13 @@ public class FileWriter implements Runnable {
 	
 
 	//String data;
-	Response response;
+	InputStream dataStream;
 	String fileNameWithPath;
 	
-	public FileWriter(Response response,String fileNameWithPath){
+	public FileWriter(InputStream response,String fileNameWithPath){
 		//this.data=data;
 		this.fileNameWithPath=fileNameWithPath;
-		this.response=response;
+		this.dataStream=response;
 	}
 	
 	
@@ -34,8 +34,7 @@ public class FileWriter implements Runnable {
 			final FileOutputStream out = new FileOutputStream(fileNameWithPath);
 			int numBytesRead;
 			final byte[] byteBuf = new byte[BUFFERSIZE];
-			InputStream body = response.getBody();
-			while ((numBytesRead = body.read(byteBuf)) != -1) {
+			while ((numBytesRead = dataStream.read(byteBuf)) != -1) {
 				out.write(byteBuf, 0, numBytesRead);
 			}
 			LOGGER.info("FIle "+fileNameWithPath+" written successfully");

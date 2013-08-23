@@ -27,7 +27,7 @@ public class TestWebLink {
 	public void testIfurlIsCorrect() {
 		Future<Response> htmlResponse = null;
 		try {
-			htmlResponse = webScrapper.hitMainPage(URL_OF_MAINPAGE);
+			htmlResponse = webScrapper.getMainPageResponse(URL_OF_MAINPAGE);
 		} catch (Exception e) {
 			LOGGER.error("Exception occured with the url "+URL_OF_MAINPAGE,e);
 			htmlResponse = null;
