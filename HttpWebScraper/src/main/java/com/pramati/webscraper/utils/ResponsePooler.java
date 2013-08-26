@@ -19,7 +19,7 @@ import com.pramati.webscraper.executors.ThreadExecutor;
  * will start processing the list as and when a new data is added to it. 
  * 
  */
-public class ResponsePooler implements Runnable {
+/*public class ResponsePooler implements Runnable {
 
 	private static final Logger LOGGER = Logger.getLogger(ResponsePooler.class);
 	private final String fileLocation = "D:/Test/";
@@ -61,7 +61,7 @@ public class ResponsePooler implements Runnable {
 		
 	}
 	
-	/*@Override
+	@Override
 	public void run() {
 		
 		int loopCounter = 0;
@@ -107,10 +107,10 @@ public class ResponsePooler implements Runnable {
 			}
 		}
 
-	} */
+	} 
 
 
-	/*private int submitForWriting(List<Future<Response>> futureList, int i) {
+	private int submitForWriting(List<Future<Response>> futureList, int i) {
 		for (Future<Response> future : futureList) {
 			i++;
 			Response response = null;
@@ -128,6 +128,7 @@ public class ResponsePooler implements Runnable {
 			
 		}
 		return i;
-	}*/
+	}
 
 
+*/

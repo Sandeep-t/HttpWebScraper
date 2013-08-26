@@ -1,6 +1,7 @@
 package com.pramati.webscraper.client.impl;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
@@ -17,9 +18,10 @@ public class Request implements Callable<Response> {
     public Request(URL url)  {
     		this.url = url;	
     }
+    
 
     @Override
     public Response call() throws IOException {
-        return new Response(url.openStream());
+        return new Response(url.openStream(),url);
     }
 } 
