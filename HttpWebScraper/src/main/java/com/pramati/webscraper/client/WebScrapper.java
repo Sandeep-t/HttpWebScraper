@@ -69,6 +69,7 @@ public class WebScrapper {
 			try {
 				stbr.append(webLink).append("/")
 						.append(link.getLink());
+				LOGGER.debug("Processing the child URL "+stbr);
 				final Future<Response> response =getFutureAsResponse(stbr.toString());
 				childFutureList.add(response);
 			} catch (MalformedURLException e1) {
@@ -93,6 +94,7 @@ public class WebScrapper {
 	 */
 	public Future<Response> getFutureAsResponse(final String urlString) throws MalformedURLException {
 		try {
+			LOGGER.debug("Processing url "+ urlString );
 			final URL url = new URL(urlString);
 			Request task = new Request(url);
 			return ThreadExecutor.getInstance().submitTask(task);
@@ -180,36 +182,13 @@ public class WebScrapper {
 	}
 
 	
-
 /**
- * This method will be used for writing the extracted data in form of
- * input stream into the files
- * 
- * @param in
- * @param outFileStr
- * @throws IOException 
+ * 	A pooler that will keep pooling for the data in childFutureList queue and 
+ * will write the data received into a file. 
  */
-	public void writeStreamToFile(InputStream in, String outFileStr) throws IOException {
-		
-		try {
-			final FileOutputStream out = new FileOutputStream(outFileStr);
-			int numBytesRead;
-			final byte[] byteBuf = new byte[BUFFERSIZE];
-			while ((numBytesRead = in.read(byteBuf)) != -1) {
-				out.write(byteBuf, 0, numBytesRead);
-			}
-		} catch (FileNotFoundException e) {
-			LOGGER.error("Exception occurecd while writing file " + outFileStr);
-			throw new FileNotFoundException("Exception occurecd while writing file " + outFileStr);
-		} catch (IOException e) {
-			LOGGER.error("IOException occurecd while writing file " + outFileStr);
-			throw new IOException("IOException occurecd while writing file " + outFileStr);
-		}
-
-	}
-	
 	public void stratResponsePooler() {
 	
+		final FileWriter writer = new FileWriter();
 			Runnable pooler = new Runnable() {
 				
 				@Override
@@ -236,7 +215,7 @@ public class WebScrapper {
 								} catch (IOException ioe) {
 									LOGGER.error(
 											"InterruptedException occured while processing the Request ",
-											e);
+											ioe);
 									//ioe.printStackTrace();
 								} 
 	
@@ -251,7 +230,7 @@ public class WebScrapper {
 								} catch (IOException ioe) {
 									LOGGER.error(
 											"ExecutionException occured while processing the Request ",
-											e);
+											ioe);
 									//ioe.printStackTrace();
 								}
 							} catch (IOException e) {
@@ -265,7 +244,7 @@ public class WebScrapper {
 								} catch (IOException ioe) {
 									LOGGER.error(
 											"IOException occured while processing the Request ",
-											e);
+											ioe);
 									//ioe.printStackTrace();
 								}
 							}
@@ -273,11 +252,13 @@ public class WebScrapper {
 							FileLock lock=null;
 							try {
 								lock=out.getChannel().lock();
-								FileWriter writer = new FileWriter();
 								writer.writeToFile(stream, out);
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+							} catch (IOException cause) {
+								try {
+									LOGGER.error("IOException occred while writing file for the URL "+response.getUrl(), cause);
+								} catch (IOException ioe) {
+									LOGGER.error("Exception occured while processing ",ioe);
+								}
 							}
 							finally{
 								try {
@@ -285,8 +266,9 @@ public class WebScrapper {
 								} catch (IOException cause) {
 									try {
 										LOGGER.error("Exception occured while releasing the lock, writing file for "+response.getUrl(), cause);
-									} catch (IOException e) {
-										e.printStackTrace();
+									} catch (IOException ioe) {
+										LOGGER.error("Exception occured while processing ",ioe);
+										ioe.printStackTrace();
 									}
 									
 								}

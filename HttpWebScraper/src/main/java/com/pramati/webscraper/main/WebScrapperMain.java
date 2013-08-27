@@ -16,7 +16,6 @@ public final class WebScrapperMain {
 	 
 	private static final Logger LOGGER = Logger.getLogger(WebScrapperMain.class);
 	
-	
 	private WebScrapperMain() {
 		super();
 		
@@ -42,24 +41,6 @@ public final class WebScrapperMain {
 		
 		webScrapper.processWeblinksinPageData(pageData,urlOfMainPage.substring(0, urlOfMainPage.lastIndexOf('/')));
 		
-		
-		
-	/*	final List<Future<Response>> responseList=webScrapper.getResonseListForWebLinks(webLinks,urlOfMainPage);
-		 int loopCounter=0;
-		 for(final Future<Response> resp:responseList){
-			 loopCounter++;
-			final Response response = resp.get();
-			final InputStream body = response.getBody();
-			webScrapper.writeStreamToFile(body, FILEDUMPDIR+loopCounter+".html");
-		 }*/
-	
-	}
-	
-	
-	
-
-	
-	
-	
+	}	
 
 }
