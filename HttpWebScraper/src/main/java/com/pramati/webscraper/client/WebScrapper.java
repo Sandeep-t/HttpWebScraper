@@ -4,14 +4,15 @@
 package com.pramati.webscraper.client;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -39,7 +40,13 @@ public class WebScrapper {
 	private static final Logger LOGGER = Logger.getLogger(WebScrapper.class);
 	private static final  int BUFFERSIZE = 1024;
 	private static final String FILESEPARATOR=System.getProperty("file.separator");
-	private final String fileLocation = "D:/Test/";
+	private final String fileLocation = "D:/Test/WebScrappedData.html";
+	private final FileOutputStream out;
+	public WebScrapper() throws FileNotFoundException  {
+		 out = new FileOutputStream(fileLocation);
+	}
+	
+	
 	//private static ExecutorService executor = Executors.newFixedThreadPool(20);
 	//private static List<Future<Response>> childFutureList = Collections.synchronizedList(new ArrayList<Future<Response>>());
 	//private static Vector<Future<Response>> childFutureList = new Vector<Future<Response>>();
@@ -51,7 +58,7 @@ public class WebScrapper {
  * @param htmlData
  * @return list of webaddress
  */
-	public void processWeblinksinPageDaTA(String htmlData,String webLink) {
+	public void processWeblinksinPageData(String htmlData,String webLink) {
 		
 		htmlData.replaceAll("\\s+", " ");
 		final HTMLLinkExtractor extractor = new HTMLLinkExtractor();
@@ -204,71 +211,93 @@ public class WebScrapper {
 	public void stratResponsePooler() {
 	
 			Runnable pooler = new Runnable() {
-	
 				
 				@Override
 				public void run() {
 	
 					while (true) {
-	
+						
 						Future<Response> future;
 	
 						while ((future = childFutureList.poll()) != null) {
-	
+							
 							Response response = null;
 							try {
 								response = future.get();
-	
+								LOGGER.debug("Processing the response of the URL"+response.getUrl());
 							} catch (InterruptedException e) {
 								try {
 									LOGGER.error(
 											"InterruptedException occured while processing the Request "
-													+ response
-															.getHttpUrlConnection()
-															.getURL()
+													+ response.getUrl()
 													+ "  "
 													+ "with status code "
-													+ response
-															.getHttpUrlConnection()
-															.getResponseCode(), e);
+													+ response.getResponseCode(), e);
 								} catch (IOException ioe) {
 									LOGGER.error(
 											"InterruptedException occured while processing the Request ",
 											e);
 									//ioe.printStackTrace();
-								}
+								} 
 	
 							} catch (ExecutionException e) {
 								try {
 									LOGGER.error(
 											"ExecutionException occured while processing the Request "
-													+ response
-															.getHttpUrlConnection()
-															.getURL()
+													+ response.getUrl()								
 													+ "  "
 													+ "with status code "
-													+ response
-															.getHttpUrlConnection()
-															.getResponseCode(), e);
+													+ response.getResponseCode(), e);
 								} catch (IOException ioe) {
 									LOGGER.error(
 											"ExecutionException occured while processing the Request ",
 											e);
 									//ioe.printStackTrace();
 								}
+							} catch (IOException e) {
+								try {
+									LOGGER.error(
+											"IOException occured while processing the Request "
+													+ response.getUrl()								
+													+ "  "
+													+ "with status code "
+													+ response.getResponseCode(), e);
+								} catch (IOException ioe) {
+									LOGGER.error(
+											"IOException occured while processing the Request ",
+											e);
+									//ioe.printStackTrace();
+								}
 							}
 							InputStream stream = response.getBody();
-							FileWriter writer = new FileWriter(stream, fileLocation
-									+ "Test" + ".html");
-							ThreadExecutor.getInstance().executeTask(writer);
+							FileLock lock=null;
+							try {
+								lock=out.getChannel().lock();
+								FileWriter writer = new FileWriter();
+								writer.writeToFile(stream, out);
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							finally{
+								try {
+									lock.release();
+								} catch (IOException cause) {
+									try {
+										LOGGER.error("Exception occured while releasing the lock, writing file for "+response.getUrl(), cause);
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+									
+								}
+							}
+							
 						}
 	
-						// do other stuff
 					}
 				}
 			};
 			ThreadExecutor.getInstance().executeTask(pooler);
-		}
-	
+	}
 	
 }

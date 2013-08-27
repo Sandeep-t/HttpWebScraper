@@ -59,9 +59,9 @@ import com.pramati.webscraper.executors.ThreadExecutor;
 		}
 	}
 		
-	}
+	}*/
 	
-	@Override
+	/*@Override
 	public void run() {
 		
 		int loopCounter = 0;
@@ -108,9 +108,9 @@ import com.pramati.webscraper.executors.ThreadExecutor;
 		}
 
 	} 
+*/
 
-
-	private int submitForWriting(List<Future<Response>> futureList, int i) {
+	/*private int submitForWriting(List<Future<Response>> futureList, int i) {
 		for (Future<Response> future : futureList) {
 			i++;
 			Response response = null;
@@ -129,6 +129,5 @@ import com.pramati.webscraper.executors.ThreadExecutor;
 		}
 		return i;
 	}
-
-
 */
+

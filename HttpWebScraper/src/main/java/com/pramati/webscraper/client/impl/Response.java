@@ -26,8 +26,17 @@ public class Response {
         return body;
     } 
     
-    public HttpURLConnection getHttpUrlConnection() throws IOException{
+    private HttpURLConnection getHttpUrlConnection() throws IOException{
       	 return (HttpURLConnection)url.openConnection();
       }
+    
+    
+    public int getResponseCode() throws IOException{
+     	 return getHttpUrlConnection().getResponseCode();
+     }
+    
+    public URL getUrl() throws IOException{
+     	 return url;
+     }
     
 }

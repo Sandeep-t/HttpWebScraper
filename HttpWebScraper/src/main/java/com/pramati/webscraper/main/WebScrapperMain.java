@@ -25,10 +25,12 @@ public final class WebScrapperMain {
 	public static void main(String[] args) throws Exception { 
 		
 		final WebScrapper webScrapper= new WebScrapper();
-		if(LOGGER.isDebugEnabled()){
-		LOGGER.debug("Web Scrapper Starting....");
+		if(LOGGER.isInfoEnabled()){
+		LOGGER.info("Web Scrapper Starting....");
 		}
 		String urlOfMainPage = "http://www.mail-archive.com/cassandra-user@incubator.apache.org/maillist.html";
+		
+		LOGGER.debug("Processing Url  "+urlOfMainPage);
 		
 		webScrapper.stratResponsePooler();
 		
@@ -38,7 +40,7 @@ public final class WebScrapperMain {
 		
 		final String pageData=webScrapper.getPageData(responseStream);
 		
-		webScrapper.processWeblinksinPageDaTA(pageData,urlOfMainPage.substring(0, urlOfMainPage.lastIndexOf('/')));
+		webScrapper.processWeblinksinPageData(pageData,urlOfMainPage.substring(0, urlOfMainPage.lastIndexOf('/')));
 		
 		
 		
