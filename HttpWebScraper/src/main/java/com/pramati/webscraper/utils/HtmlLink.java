@@ -14,7 +14,11 @@ public class HtmlLink {
 	String link;
 	String linkText;
 
-	HtmlLink(){};
+	HtmlLink(String link ){
+		this.link=replaceInvalidChar(link);
+		//this.linkText=linkText;
+		
+	};
 
 	@Override
 	public String toString() {
@@ -26,21 +30,17 @@ public class HtmlLink {
 		return link;
 	}
 
-	public void setLink(String link) {
-		this.link = replaceInvalidChar(link);
-	}
+
 
 	public String getLinkText() {
 		return linkText;
 	}
 
-	public void setLinkText(String linkText) {
-		this.linkText = linkText;
-	}
+	
 
 	private String replaceInvalidChar(String link){
 		final String replacedLink = link.replaceAll("'", "");
-		//String finallink = link.replaceAll("\"", "");
+		
 		return replacedLink.replaceAll("\"", "");
 	}
 

@@ -17,22 +17,20 @@ public class Response {
    
    final private URL url;
    
-    public Response(InputStream body,URL url) {
+   final private int responseCode;
+   
+    public Response(InputStream body,URL url,int responseCode) {
         this.body = body;
         this.url=url;
+        this.responseCode= responseCode;
     }
 
     public InputStream getBody() {
         return body;
     } 
-    
-    private HttpURLConnection getHttpUrlConnection() throws IOException{
-      	 return (HttpURLConnection)url.openConnection();
-      }
-    
-    
+       
     public int getResponseCode() throws IOException{
-     	 return getHttpUrlConnection().getResponseCode();
+     	 return responseCode;
      }
     
     public URL getUrl() throws IOException{

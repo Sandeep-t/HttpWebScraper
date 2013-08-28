@@ -21,7 +21,7 @@ import com.pramati.webscraper.client.WebScrapper;
  */
 public class HTMLLinkExtractor {
 
-	private Pattern patternTag, patternLink;
+	private final Pattern patternTag, patternLink;
 	private Matcher matcherTag, matcherLink;
 	private static final Logger LOGGER = Logger.getLogger(HTMLLinkExtractor.class);
 	private static final String HTML_TAG_PATTERN = "(?i)<a([^>]+)>(.*?)</a>";
@@ -53,24 +53,21 @@ public class HTMLLinkExtractor {
 			String href = matcherTag.group(1); // href
 			LOGGER.info("Group 1 "+ href);
 			
-			String linkText = matcherTag.group(2); // link text
-			LOGGER.info("Group2 "+ linkText);
-			
 			matcherLink = patternLink.matcher(href);
  
 			while (matcherLink.find()) {
  
-				String link = matcherLink.group(1); // link
-				LOGGER.info("link  "+ link);
+				String linkAddress = matcherLink.group(1); // link
 				
-				HtmlLink obj = new HtmlLink();
-				obj.setLink(link);
-				obj.setLinkText(linkText);
+				LOGGER.info("link  "+ linkAddress);
+				
+				HtmlLink links = new HtmlLink(linkAddress);
  
-				result.add(obj);
+				result.add(links);
  
 			}
  
+			
 		}
  
 		return result;

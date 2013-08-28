@@ -19,12 +19,14 @@ import com.pramati.webscraper.client.impl.Response;
 public final class ThreadExecutor {
 
 	 private static final Logger LOGGER =Logger.getLogger(ThreadExecutor.class);
+	 
 	 private static volatile ThreadExecutor executor;
+	 
 	 private ExecutorService executorService;
 	// ThreadExecutor executor;
 
 	private ThreadExecutor() {
-		executorService =Executors.newFixedThreadPool(10);
+		executorService =Executors.newFixedThreadPool(24);
 	}
 
 	public void executeTask(Runnable task) {

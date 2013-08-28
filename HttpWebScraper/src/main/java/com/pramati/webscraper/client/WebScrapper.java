@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -61,17 +62,18 @@ public class WebScrapper {
 	 * @return list of webaddress
 	 */
 	public void processWeblinksinPageData(String htmlData, String webLink) {
-
+		/**
+		 * Replace all one or more space characters with " "
+		 * 
+		 */
 		htmlData.replaceAll("\\s+", " ");
 		final HTMLLinkExtractor extractor = new HTMLLinkExtractor();
 		final List<HtmlLink> links = extractor.grabHTMLLinks(htmlData);
-		StringBuilder stbr;
 		for (HtmlLink link : links) {
-			stbr = new StringBuilder();
+			StringBuilder stbr = new StringBuilder();
+			stbr.append(webLink).append("/").append(link.getLink());
+			LOGGER.debug("Processing the child URL " + stbr);
 			try {
-				stbr.append(webLink).append("/").append(link.getLink());
-
-				LOGGER.debug("Processing the child URL " + stbr);
 				final Future<Response> response = getFutureAsResponse(stbr
 						.toString());
 				childFutureList.add(response);
@@ -81,7 +83,6 @@ public class WebScrapper {
 								+ stbr.toString(), e1);
 
 			}
-
 		}
 	}
 
@@ -163,8 +164,10 @@ public class WebScrapper {
 				while (true) {
 
 					Future<Response> future;
-
+					///Long current= System.currentTimeMillis();
 					while ((future = childFutureList.poll()) != null) {
+						
+						//LOGGER.debug("Start Time "+sys);
 
 						Response response = null;
 						try {
@@ -176,14 +179,14 @@ public class WebScrapper {
 							catchExceptions(response, e);
 
 						} catch (ExecutionException e) {
-							
+
 							catchExceptions(response, e);
-							
+
 						} catch (IOException e) {
-							
+
 							catchExceptions(response, e);
 						}
-						
+
 						InputStream stream = response.getBody();
 						FileLock lock = null;
 						try {
@@ -218,6 +221,7 @@ public class WebScrapper {
 						}
 
 					}
+					//LOGGER.debug("Toatal time  "+ (System.currentTimeMillis()-current));
 
 				}
 			}
@@ -237,7 +241,7 @@ public class WebScrapper {
 						// ioe.printStackTrace();
 					}
 				}
-				if(e instanceof ExecutionException){
+				if (e instanceof ExecutionException) {
 					try {
 						LOGGER.error(
 								"ExecutionException occured while processing the Request "
@@ -251,8 +255,8 @@ public class WebScrapper {
 						// ioe.printStackTrace();
 					}
 				}
-				
-				if(e instanceof IOException){
+
+				if (e instanceof IOException) {
 
 					try {
 						LOGGER.error(
@@ -266,7 +270,7 @@ public class WebScrapper {
 								ioe);
 						// ioe.printStackTrace();
 					}
-				
+
 				}
 
 			}
